@@ -13,12 +13,12 @@ Thank you very much to the authors and contributors of the original repo!
 * Follow the instruction for installing ORB-SLAM3's and their dependencies in https://github.com/UZ-SLAMLab/ORB_SLAM3
 
 ## Installation
-'''
+```
 cd ros2_ws/src
 git clone git@github.com:sumborwonpob/orb_slam3_ros2.git
 cd ..
 colcon build
-'''
+```
 
 ## Getting started
 * Copy the ORBvoc.txt from your ORB_SLAM3 directory to orb_slam3_ros2/config/ROS
@@ -29,6 +29,6 @@ colcon build
 
 * Launch the launch file with
 
-'''
+```
 ros2 launch orb_slam3_ros2 orb_slam3_ros2.launch.pi
-'''
+```
