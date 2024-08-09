@@ -14,5 +14,5 @@ orb_slam3_ros2:
     # Be sure to 'colcon build' the package everytime you make changes to the config files.
 
     # Output Stuff
-    pose_frame_id: map # frame id you want to put in output pose messages
+    pose_frame_id: odom # frame id you want to put in output pose messages
     between_path_time: 0.2 # For every what seconds period until the next pose is added to the path message

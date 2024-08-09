@@ -21,6 +21,8 @@ colcon build
 ```
 
 ## Getting started
+* Change the path ORB_PATH in orb_slam3_ros2/CMakeLists.txt to your ORB_SLAM3 directory
+
 * Copy the ORBvoc.txt from your ORB_SLAM3 directory to orb_slam3_ros2/config/ROS
 
 * Edit the config file in orb_slam3_ros2/config/ROS/ros_config.yaml
