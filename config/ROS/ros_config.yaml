@@ -1,0 +1,18 @@
+orb_slam3_ros2:
+  ros__parameters:
+    # ROS STUFF
+    cam1_topic: /cam0/image_raw
+    cam2_topic: /cam1/image_raw # Doesn't matter if mono
+    imu_topic: /imu0
+    output_topic: /orb # Base topic. The output will be output_topic/pose and output_topic/path
+
+    # ORB STUFF
+    slam_mode: IMU_MONOCULAR # "MONOCULAR", "IMU_MONOCULAR", "STEREO", "IMU_STEREO"
+    config_file_name: EuRoC.yaml # ORB_SLAM3 setting file in orb_slam3_ros2/config/ORB, same format as from the original repo.
+    vocab_file_name: ORBvoc.txt # Vocab file in orb_slam3_ros2/config/ORB, copied from the one generated when building ORB_SLAM3.
+    with_visualization: true # Do you need the ORB_SLAM3 visualization tool?
+    # Be sure to 'colcon build' the package everytime you make changes to the config files.
+
+    # Output Stuff
+    pose_frame_id: map # frame id you want to put in output pose messages
+    between_path_time: 0.2 # For every what seconds period until the next pose is added to the path message
