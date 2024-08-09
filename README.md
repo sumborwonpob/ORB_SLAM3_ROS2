@@ -30,5 +30,5 @@ colcon build
 * Launch the launch file with
 
 ```
-ros2 launch orb_slam3_ros2 orb_slam3_ros2.launch.pi
+ros2 launch orb_slam3_ros2 orb_slam3_ros2.launch.py
 ```
