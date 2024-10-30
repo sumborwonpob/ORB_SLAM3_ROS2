@@ -12,10 +12,11 @@ class ORB_SLAM3_ROS : public rclcpp::Node
     bool with_visualization;
 
     // ----------- ROS thingies --------
-    //rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image1_subber, image2_subber;
-    //rclcpp::Subscription<sensor_msgs::msg::CompressedImage>::SharedPtr image1_subber, image2_subber;
     rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_subber;
     message_filters::Subscriber<sensor_msgs::msg::Image> image1_subber, image2_subber;
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> ApproxSyncPolicy;
+    typedef message_filters::Synchronizer<ApproxSyncPolicy> ApproxSync;
+    std::shared_ptr<ApproxSync> syncApproximate;
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_subber;
     rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub;
     rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub;
@@ -34,7 +35,7 @@ class ORB_SLAM3_ROS : public rclcpp::Node
     double between_path_time;
 
     ////////////////////////// C O N S T R U C T O R ///////////////////////////////
-    ORB_SLAM3_ROS(string exec_path) : Node("orb_slam3_ros")  
+    ORB_SLAM3_ROS(string exec_path) : Node("orb_slam3_ros")
     {
         declare_parameter("cam1_topic", "N/A");
         declare_parameter("cam2_topic", "N/A");
@@ -123,13 +124,12 @@ class ORB_SLAM3_ROS : public rclcpp::Node
         // For Camera
         if(slam_mode == ORB_SLAM3::System::IMU_STEREO || slam_mode == ORB_SLAM3::System::STEREO)
         {
-            // W.I.P.
-            // cout << "---------------- Initializing Stereo ------------------" << endl;
-            // image1_subber.subscribe(this, cam1_topic);
-            // image2_subber.subscribe(this, cam2_topic);
-            // typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::msg::Image, sensor_msgs::msg::Image> approximate_policy;
-            // message_filters::Synchronizer<approximate_policy>syncApproximate(approximate_policy(10), image1_subber, image2_subber);
-            // syncApproximate.registerCallback(&ORB_SLAM3_ROS::stereo_callback, this); 
+            cout << "---------------- Initializing Stereo ------------------" << endl;
+            image1_subber.subscribe(this, cam1_topic);
+            image2_subber.subscribe(this, cam2_topic);
+            syncApproximate = std::make_shared<ApproxSync>(ApproxSyncPolicy(25), image1_subber, image2_subber);
+            //syncApproximate->setMaxIntervalDuration(rclcpp::Duration(1.00,0));
+            syncApproximate->registerCallback(&ORB_SLAM3_ROS::stereo_callback, this); 
         }
         else if(slam_mode == ORB_SLAM3::System::IMU_MONOCULAR)
         {
@@ -218,9 +218,13 @@ class ORB_SLAM3_ROS : public rclcpp::Node
         Sophus::SE3f pose = mpSLAM->TrackMonocular(image , image_time);
         publish_pose(pose);
     }
-    void stereo_callback(const sensor_msgs::msg::Image::SharedPtr image1, const sensor_msgs::msg::Image::SharedPtr image2)
+    void stereo_callback(const sensor_msgs::msg::Image::SharedPtr image1_msg, const sensor_msgs::msg::Image::SharedPtr image2_msg)
     { 
-        // W.I.P.
+        cv_ptr1 = cv_bridge::toCvCopy(image1_msg);
+        cv_ptr2 = cv_bridge::toCvCopy(image2_msg);
+        double image_time = rclcpp::Time(cv_ptr1->header.stamp).seconds();
+        Sophus::SE3f pose = mpSLAM->TrackStereo(cv_ptr1->image, cv_ptr2->image, image_time);
+        publish_pose(pose);
     }; 
     void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg)
     {
